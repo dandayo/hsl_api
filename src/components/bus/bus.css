@@ -1,0 +1,60 @@
+.bus-wrapper {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+  
+  .nav-buttons button {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-size: 1.25rem;
+    border: none;
+    background-color: #007aff;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .nav-buttons button:hover {
+    background-color: #005fcc;
+  }
+  
+  .swiper {
+    width: 100%;
+  }
+  
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .bus-card {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+    box-sizing: border-box;
+  }
+  
+  .bus-card h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
