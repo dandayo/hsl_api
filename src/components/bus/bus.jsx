@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
-import './Bus.css';
+import './bus.css';
 import '../search/search';
 
 const ENDPOINT = 'https://api.digitransit.fi/routing/v2/hsl/gtfs/v1';
