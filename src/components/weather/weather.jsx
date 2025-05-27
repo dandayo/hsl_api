@@ -42,7 +42,7 @@ const Weather = () => {
 
          {!isLoading && weatherData && !error &&(
         <div className="info">
-          <h2>Weather in {weatherData.city.name}</h2>
+          <h2>{weatherData.city.name}</h2>
           <div className="currentTemp">
             <div>
             <h4>Current weather</h4>

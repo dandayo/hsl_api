@@ -4,7 +4,6 @@ import 'swiper/css';
 import './bus.css';
 import '../search/search';
 
-const ENDPOINT = 'https://api.digitransit.fi/routing/v2/hsl/gtfs/v1';
 const API_KEY = '443c7d32d16745ed85de9dd47b911cf2';
 
 const locations = [
@@ -40,17 +39,34 @@ export default function Bus() {
         const results = await Promise.all(
           locations.map(async ({ name, stopId }) => {
             console.log(`Fetching schedule for ${name} (${stopId})`);
-            const resp = await fetch(ENDPOINT, {
+            const requestBody = {
+              query,
+              variables: { stopId, limit: 10 }
+            };
+            console.log('Request body:', requestBody);
+            
+            const resp = await fetch('/api/schedule', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'digitransit-subscription-key': API_KEY,
               },
-              body: JSON.stringify({ query, variables: { stopId, limit: 8 } }),
+              body: JSON.stringify(requestBody),
             });
+            
             console.log(`Response status for ${name}:`, resp.status);
-            const json = await resp.json();
-            console.log(`GraphQL data for ${name}:`, json);
+            const responseText = await resp.text();
+            console.log(`Raw response for ${name}:`, responseText);
+            
+            let json;
+            try {
+              json = JSON.parse(responseText);
+            } catch (e) {
+              console.error('Failed to parse JSON:', e);
+              throw new Error(`Invalid JSON response: ${responseText}`);
+            }
+            
+            console.log(`Parsed response for ${name}:`, json);
             const { data, errors } = json;
             if (errors) throw new Error(errors.map(e => e.message).join('; '));
             return [name, data.stop];

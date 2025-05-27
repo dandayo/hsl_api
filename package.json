@@ -1,15 +1,21 @@
 {
   "name": "hsl_api",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "proxy-server/proxy.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "proxy": "node proxy-server/proxy.js",
+    "start": "concurrently \"npm run proxy\" \"npm run dev\""
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
@@ -20,6 +26,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.1.2",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

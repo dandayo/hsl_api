@@ -46,7 +46,7 @@
   
   .bus-card {
     width: 100%;
-    height: 250px;
+    height: 400px;
     padding: 1rem;
     border: 1px solid #ccc;
     border-radius: 1rem;
@@ -55,10 +55,53 @@
     background-color: #FFDFDE;
     color: #6A7BA2 ;
   }
-  
-  .bus-card  h2{
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    color: #6A7BA2;
+
+  .bus-card ul{
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    }
+
+  .bus-card li {
+    list-style: none;
+  }
+
+  .bus-card li::before {
+    content: '';
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background-image: url(bus.svg);
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
+
+  .bus-time{
+    display: flex;
+    align-items: center;
+  }
+
+  .bus-time p{
+    margin-left: 30px;
   }
   
+  .bus-card h2{
+    font-size: 1.50rem;
+    margin-bottom: 0.5rem;
+    color: #6A7BA2!important;
+    margin-left: 20px;
+  }
+
+  .bus h2{
+    color: #FFDFDE;
+  }
+  
+.bus{
+  justify-content: space-evenly;
+}
+
+.first-time{
+  font-size: 1.25rem;
+}
