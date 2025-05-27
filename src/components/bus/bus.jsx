@@ -4,8 +4,6 @@ import 'swiper/css';
 import './bus.css';
 import '../search/search';
 
-const API_KEY = '443c7d32d16745ed85de9dd47b911cf2';
-
 const locations = [
   { name: 'To work', bus: '400', stopId: 'HSL:4150220'},
   { name: 'To home', bus: '400', stopId: 'HSL:1150101'},
@@ -49,7 +47,6 @@ export default function Bus() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'digitransit-subscription-key': API_KEY,
               },
               body: JSON.stringify(requestBody),
             });
