@@ -2,13 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import './Bus.css';
+import '../search/search';
 
 const ENDPOINT = 'https://api.digitransit.fi/routing/v2/hsl/gtfs/v1';
 const API_KEY = '443c7d32d16745ed85de9dd47b911cf2';
 
 const locations = [
-  { name: 'Home', bus: '400', stopId: 'HSL:4150220'},
-  { name: 'Work', bus: '400', stopId: 'HSL:1150101'},
+  { name: 'To work', bus: '400', stopId: 'HSL:4150220'},
+  { name: 'To home', bus: '400', stopId: 'HSL:1150101'},
 ];
 
 const query = `
@@ -92,17 +93,19 @@ export default function Bus() {
             <SwiperSlide key={name}>
               <div className="bus-card">
                 <h2>{name}</h2>
-                {times.map((t, i) => {
-                  const date = new Date((t.serviceDay + t.realtimeDeparture) * 1000);
-                  const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                  const className = i === 0 ? 'bus-time first-time' : 'bus-time';
-                  return (
-                    <li key={i} className={className}>
-                      {timeString} → {t.headsign}
-                    </li>
-                  );
-                })}
-             </div>
+                <ul>
+                  {times.map((t, i) => {
+                    const date = new Date((t.serviceDay + t.realtimeDeparture) * 1000);
+                    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const className = i === 0 ? 'bus-time first-time' : 'bus-time';
+                    return (
+                      <li key={i} className={className}>
+                       <p>{timeString} → {t.headsign} - {bus}</p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </SwiperSlide>
           );
         })}

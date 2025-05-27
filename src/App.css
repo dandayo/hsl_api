@@ -1,3 +1,71 @@
-main{
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: linear-gradient(to right, #6A7BA2 50%, #FFDFDE 50%);
+    color: #333;
+    min-height: 100vh;
+    width:100vw;
+}
+.body{
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main{
+    display: flex;   
+    width:100vw;
+    height: 100vh;
+}
+
+.bus{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.weather{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #6A7BA2;
+}
+
+
+.buttonToSearch {
+    flex: 1;
+    padding: 1rem 4rem;
+    font-size: 1.55rem;
+    border: none;
+    background-color: #FFDFDE;
+    color: #6A7BA2 ;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .buttonToSearch:hover {
+    background-color: #fcc9c7;
+    color: #96ade2 ;
+  }
+
+
+.date{
+    display: flex;
+}
+
+.date h2{
+    width: 50vw;
+    display: flex;
+    justify-content: center;
+}
+
+.year{
+    color: #6A7BA2;
+}
+
+.time{
+    color: #FFDFDE;
 }

@@ -1,0 +1,20 @@
+.backButton{
+    flex: 1;
+    margin: 50px  50px;
+    padding: 20px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    background-color: #FFDFDE;
+    color: #6A7BA2 ;
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+.searchMain {
+    width: 100vw;
+}
+
+.search{
+    width: 50vw;
+}

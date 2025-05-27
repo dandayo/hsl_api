@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import './weather.css';
 
 const Weather = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -35,13 +36,14 @@ const Weather = () => {
   }, [])
 
     return (
-      <div>
+      <div className="weather">
         {isLoading && <p>Data loading...</p>}
         {error && <p style={{ color: 'red' }}>Error: {error.message}</p>}
 
          {!isLoading && weatherData && !error &&(
-          <div className="current_temp">
-            <h2>Weather in {weatherData.city.name}</h2>
+        <div className="info">
+          <h2>Weather in {weatherData.city.name}</h2>
+          <div className="currentTemp">
             <div>
             <h4>Current weather</h4>
             <p>{weatherData.list[0].main.temp.toFixed()}°C</p>
@@ -49,22 +51,22 @@ const Weather = () => {
             <p>Feels like: {weatherData.list[0].main.feels_like.toFixed()}°C</p>
             <p>Description: {weatherData.list[0].weather[0].description}</p>
           </div>
-          <div className="future_temp">
-            <h4>Next:</h4>
-              {weatherData.list.slice(1, 4).map(forecast => (
-                <div key={forecast.dt}>
-                  <p>Time: {new Date(forecast.dt * 1000).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                  <p>{forecast.main.temp.toFixed()}°C</p>
-                  <p>Humidity {forecast.main.humidity}%</p>
-                  <p>Feels like: {forecast.main.feels_like.toFixed()}°C</p>
-                  <p>Description: {forecast.weather[0].description}</p>
-                </div>
-              ))}
-          </div>  
+          </div>
+                    <div className="futureTemp">
+                      {weatherData.list.slice(1, 4).map(forecast => (
+                        <div key={forecast.dt}>
+                          <p>Time: {new Date(forecast.dt * 1000).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                          <p>{forecast.main.temp.toFixed()}°C</p>
+                          <p>Humidity {forecast.main.humidity}%</p>
+                          <p>Feels like: {forecast.main.feels_like.toFixed()}°C</p>
+                          <p>Description: {forecast.weather[0].description}</p>
+                        </div>
+                      ))}
+                  </div>  
           </div>
          )}
       </div>

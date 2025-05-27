@@ -24,14 +24,15 @@
     padding: 0.5rem 1rem;
     font-size: 1.25rem;
     border: none;
-    background-color: #007aff;
-    color: white;
+    background-color: #FFDFDE;
+    color: #6A7BA2 ;
     border-radius: 8px;
     cursor: pointer;
   }
-  
+
   .nav-buttons button:hover {
-    background-color: #005fcc;
+    background-color: #fcc9c7;
+    color: #96ade2 ;
   }
   
   .swiper {
@@ -45,16 +46,19 @@
   
   .bus-card {
     width: 100%;
+    height: 250px;
     padding: 1rem;
     border: 1px solid #ccc;
     border-radius: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: white;
     box-sizing: border-box;
+    background-color: #FFDFDE;
+    color: #6A7BA2 ;
   }
   
-  .bus-card h2 {
+  .bus-card  h2{
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
+    color: #6A7BA2;
   }
   

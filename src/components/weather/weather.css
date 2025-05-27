@@ -1,0 +1,32 @@
+.weather{
+    display: flex;
+    justify-content: center;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.weather h2{
+    text-align: center;
+}
+
+.currentTemp{
+    width: 50vw;
+    display: flex;
+    justify-content: center;
+    font-size: x-large;
+}
+
+.futureTemp{
+    margin-top: 6rem;
+    display: flex;
+    width: 50vw;
+    justify-content: space-around;
+}
+
+.currentTemp p, .futureTemp p, h4 {
+    text-align: center;
+}
