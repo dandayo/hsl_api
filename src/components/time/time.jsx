@@ -6,7 +6,7 @@ const [currentTime, setCurrentTime] = useState(new Date());
 useEffect(() => {
   const timerId = setInterval(() => {
     setCurrentTime(new Date());
-  }, 60 * 1000);
+  }, 30 * 1000);
 
   return () => {
     clearInterval(timerId);

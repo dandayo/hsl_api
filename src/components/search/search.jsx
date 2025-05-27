@@ -115,7 +115,7 @@ export default function Search() {
       try {
         json = JSON.parse(text);
       } catch (err) {
-        console.error('Invalid JSON:', text);
+        console.error('Invalid JSON:', text, err);
         throw new Error('Invalid response format');
       }
 

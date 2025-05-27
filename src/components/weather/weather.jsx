@@ -46,10 +46,10 @@ const Weather = () => {
           <div className="currentTemp">
             <div>
             <h4>Current weather</h4>
-            <p>{weatherData.list[0].main.temp.toFixed()}°C</p>
-            <p>Humidity {weatherData.list[0].main.humidity}%</p>
-            <p>Feels like: {weatherData.list[0].main.feels_like.toFixed()}°C</p>
-            <p>Description: {weatherData.list[0].weather[0].description}</p>
+            <p className="temp">{weatherData.list[0].main.temp.toFixed()}°C</p>
+            <p className="humidity">Humidity {weatherData.list[0].main.humidity}%</p>
+            <p className="feels_like">Feels like: {weatherData.list[0].main.feels_like.toFixed()}°C</p>
+            <p className="description">Description: {weatherData.list[0].weather[0].description}</p>
           </div>
           </div>
                     <div className="futureTemp">
@@ -60,10 +60,10 @@ const Weather = () => {
                               minute: '2-digit'
                             })}
                           </p>
-                          <p>{forecast.main.temp.toFixed()}°C</p>
-                          <p>Humidity {forecast.main.humidity}%</p>
-                          <p>Feels like: {forecast.main.feels_like.toFixed()}°C</p>
-                          <p>Description: {forecast.weather[0].description}</p>
+                          <p className="temp">{forecast.main.temp.toFixed()}°C</p>
+                          <p className="humidity">Humidity {forecast.main.humidity}%</p>
+                          <p className="feels_like">Feels like: {forecast.main.feels_like.toFixed()}°C</p>
+                          <p className="description">Description: {forecast.weather[0].description}</p>
                         </div>
                       ))}
                   </div>  
