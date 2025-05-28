@@ -2,166 +2,221 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './search.css';
 
+// URLs and key
 const GEOCODE_URL = 'https://api.digitransit.fi/geocoding/v1/autocomplete';
 const PLAN_URL = 'http://localhost:3001/api/plan';
 const API_KEY = '443c7d32d16745ed85de9dd47b911cf2';
 
 export default function Search() {
   const navigate = useNavigate();
-  const [fromInput, setFromInput] = useState('');
-  const [toInput, setToInput] = useState('');
-  const [fromStop, setFromStop] = useState(null);
-  const [toStop, setToStop] = useState(null);
-  const [message, setMessage] = useState('');
-  const t1 = useRef();
-  const t2 = useRef();
+
+  // Input and coordinates
+  const [fromText, setFromText] = useState('');
+  const [toText, setToText] = useState('');
+  const [fromCoords, setFromCoords] = useState(null);
+  const [toCoords, setToCoords] = useState(null);
+
+  // Suggestions (stops and addresses)
   const [suggestFrom, setSuggestFrom] = useState([]);
   const [suggestTo, setSuggestTo] = useState([]);
 
-  // Request autocomplete suggestions from Digitransit
-  const fetchSuggestions = async (text, setSuggestions) => {
-    if (!text) return setSuggestions([]);
+  // Route options
+  const [routes, setRoutes] = useState([]);
+
+  // Debounce refs
+  const debounceFrom = useRef();
+  const debounceTo = useRef();
+
+  // Fetch suggestions (stop,address,station,street,venue)
+  const fetchSuggestions = async (text, setter) => {
+    if (!text) return setter([]);
     try {
-      const res = await fetch(`${GEOCODE_URL}?text=${encodeURIComponent(text)}&layers=stop`, {
-        headers: { 'digitransit-subscription-key': API_KEY }
-      });
-      const json = await res.json();
-      setSuggestions(json.features || []);
-    } catch (e) {
-      console.error('Suggest error:', e);
-      setSuggestions([]);
+      const res = await fetch(
+        `${GEOCODE_URL}?text=${encodeURIComponent(text)}&layers=stop,address,station,street,venue`,
+        { headers: { 'digitransit-subscription-key': API_KEY } }
+      );
+      const { features } = await res.json();
+      setter(features || []);
+    } catch (err) {
+      console.error('Suggest error:', err);
+      setter([]);
     }
   };
 
-  const onChangeFrom = e => {
-    clearTimeout(t1.current);
+  const onFromChange = e => {
+    clearTimeout(debounceFrom.current);
     const val = e.target.value;
-    setFromInput(val);
-    setFromStop(null);
-    t1.current = setTimeout(() => fetchSuggestions(val, setSuggestFrom), 300);
+    setFromText(val);
+    setFromCoords(null);
+    debounceFrom.current = setTimeout(() => fetchSuggestions(val, setSuggestFrom), 600);
   };
 
-  const onChangeTo = e => {
-    clearTimeout(t2.current);
+  const onToChange = e => {
+    clearTimeout(debounceTo.current);
     const val = e.target.value;
-    setToInput(val);
-    setToStop(null);
-    t2.current = setTimeout(() => fetchSuggestions(val, setSuggestTo), 300);
+    setToText(val);
+    setToCoords(null);
+    debounceTo.current = setTimeout(() => fetchSuggestions(val, setSuggestTo), 600);
   };
 
-  // Save selected stop from suggestions
-  const selectStop = (feature, setInput, setStop, setSuggestions) => {
-    setInput(feature.properties.label);
-    // Store the coordinates [lon, lat] from the feature geometry
-    const [lon, lat] = feature.geometry.coordinates;
-    setStop({ lat, lon });
-    setSuggestions([]);
+  const pickStopOrAddress = (f, setText, setCoords, clearList) => {
+    setText(f.properties.label);
+    const [lon, lat] = f.geometry.coordinates;
+    setCoords({ lat, lon });
+    clearList([]);
   };
 
-  // When form is submitted, call Digitransit routing API
-  const handleSubmit = async e => {
+  // Plan 3 routes
+  const onSubmit = async e => {
     e.preventDefault();
-    if (!fromStop || !toStop) {
-      setMessage('Please choose both stops from the list.');
+    if (!fromCoords || !toCoords) {
+      console.error('Both points must be selected');
       return;
     }
-    setMessage(`Searching route from ${fromInput} to ${toInput}...`);
 
     const query = `
       query Plan($aLat: Float!, $aLon: Float!, $bLat: Float!, $bLon: Float!) {
-        plan(from: {lat: $aLat, lon: $aLon}, to: {lat: $bLat, lon: $bLon}, numItineraries: 3) {
+        plan(
+          from: {lat: $aLat, lon: $aLon}, to: {lat: $bLat, lon: $bLon}, numItineraries: 3
+        ) {
           itineraries {
             duration
             walkDistance
             legs {
               mode
-              from { 
-                name 
-                stop{
-                  name
-                  code
-                }
-              }
-              to   { 
-                name
-          			stop{
-                  name
-                  code
-                }
-              }
-              trip { 
-                routeShortName
-                tripShortName
-               }
+              startTime
+              from { name stop { name code } }
+              to   { name stop { name code } }
+              trip { routeShortName tripShortName }
             }
           }
         }
       }
     `;
-    const variables = { aLat: fromStop.lat, aLon: fromStop.lon, bLat: toStop.lat, bLon: toStop.lon };
+
+    const variables = {
+      aLat: fromCoords.lat,
+      aLon: fromCoords.lon,
+      bLat: toCoords.lat,
+      bLon: toCoords.lon,
+    };
 
     try {
       const res = await fetch(PLAN_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'digitransit-subscription-key': API_KEY
-        },
-        body: JSON.stringify({ query, variables })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, variables }),
       });
-
-      const text = await res.text();
-      let json;
-      try {
-        json = JSON.parse(text);
-      } catch (err) {
-        console.error('Invalid JSON:', text, err);
-        throw new Error('Invalid response format');
-      }
-
-      if (json.errors) {
-        console.error('GraphQL errors:', json.errors);
-        throw new Error(json.errors.map(e => e.message).join('; '));
-      }
-
-      console.log('Routing result:', json.data);
-      setMessage(JSON.stringify(json.data.plan.itineraries, null, 2));
+      if (!res.ok) throw new Error(res.statusText);
+      const { data } = await res.json();
+      setRoutes(data.plan.itineraries || []);
     } catch (err) {
-      console.error('Routing error:', err);
-      setMessage(`Routing error: ${err.message}`);
+      console.error('Plan error:', err);
     }
   };
 
+  // Format seconds into minutes
+  const formatTime = sec => {
+    const m = Math.floor(sec / 60);
+    return `${m}min`;
+  };
+
+  const bigLetter = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  // Format departure time (Unix ms -> HH:MM)
+  const formatDepartureTime = (ms) => {
+    if (!ms) return '—';
+    const date = new Date(ms);
+    const h = date.getHours().toString().padStart(2, '0');
+    const m = date.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
   return (
-    <div className="searchMain">
-      <button onClick={() => navigate(-1)} className="back-button">←</button>
-      <h2>Plan your route</h2>
-      <form onSubmit={handleSubmit}>
-        <input value={fromInput} onChange={onChangeFrom} placeholder="From stop" />
-        {suggestFrom.length > 0 && (
-          <ul className="suggestions">
-            {suggestFrom.map(f => (
-              <li key={f.properties.id} onClick={() => selectStop(f, setFromInput, setFromStop, setSuggestFrom)}>
-                {f.properties.label}
-              </li>
-            ))}
-          </ul>
-        )}
+    <div>
+      <button className="btn-back" onClick={() => navigate(-1)}>←</button>
+      <div className="search-main">
+        <form className="form" onSubmit={onSubmit}>
+          <h2 className="title">Plan your route</h2>
 
-        <input value={toInput} onChange={onChangeTo} placeholder="To stop" />
-        {suggestTo.length > 0 && (
-          <ul className="suggestions">
-            {suggestTo.map(f => (
-              <li key={f.properties.id} onClick={() => selectStop(f, setToInput, setToStop, setSuggestTo)}>
-                {f.properties.label}
-              </li>
-            ))}
-          </ul>
-        )}
+          {/* From input */}
+          <div className="input-group">
+            <input
+              className="input-field"
+              value={fromText}
+              onChange={onFromChange}
+              placeholder="From (stop or address)"
+            />
+            {suggestFrom.length > 0 && (
+              <ul className="suggest-list">
+                {suggestFrom.slice(0, 5).map(f => (
+                  <li
+                    key={f.properties.id}
+                    className="suggest-item"
+                    onClick={() => pickStopOrAddress(f, setFromText, setFromCoords, setSuggestFrom)}
+                  >
+                    {f.properties.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
-        <button type="submit">Go</button>
-      </form>
-      {message && <pre className="message">{message}</pre>}
+          {/* To input */}
+          <div className="input-group">
+            <input
+              className="input-field"
+              value={toText}
+              onChange={onToChange}
+              placeholder="To (stop or address)"
+            />
+            {suggestTo.length > 0 && (
+              <ul className="suggest-list">
+                {suggestTo.slice(0, 5).map(f => (
+                  <li
+                    key={f.properties.id}
+                    className="suggest-item"
+                    onClick={() => pickStopOrAddress(f, setToText, setToCoords, setSuggestTo)}
+                  >
+                    {f.properties.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <button className="btn-go" type="submit">Go</button>
+        </form>
+
+        {/* Show 3 route options */}
+        <div className='result'>
+          <h2>Your Route</h2>
+          {routes.map((r, idx) => (
+            <div key={idx} className="result-box">
+              <p className="option">Option {idx + 1}</p>
+              <p className="departure">Departure: <span className='departure-time result-info'>{formatDepartureTime(r.legs[0]?.startTime)}</span></p>
+              <p>Duration: <span className='duration-time result-info'>{formatTime(r.duration)}</span></p>
+              <p className="walk">
+                Walk: <span className="distance result-info">{Math.round(r.walkDistance)}</span>m
+              </p>
+              {r.legs.map((leg, i) => (
+                <div className='route-map'>
+                  <p key={i}>
+                    {bigLetter(leg.mode === 'RAIL' ? 'Train' : leg.mode)}
+                    <span className='result-info'>{leg.trip?.routeShortName && ` ${leg.trip.routeShortName}`}</span>
+                    {` from ${leg.from.name}`}
+                    <span className='result-info'>{leg.from.stop?.code && ` (stop code ${leg.from.stop.code})`}</span>
+                    {` to ${leg.to.name}`}
+                    <span className='result-info'>{leg.to.stop?.code && ` (stop code ${leg.to.stop.code})`}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

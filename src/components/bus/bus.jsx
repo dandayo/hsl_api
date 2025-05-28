@@ -2,15 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import './bus.css';
-import '../search/search';
 
 const locations = [
-  { name: 'To work', bus: '400', stopId: 'HSL:4150220'},
-  { name: 'To home', bus: '400', stopId: 'HSL:1150101'},
+  { name: 'To work', bus: '400', stopId: 'HSL:4150220' },
+  { name: 'To home', bus: '400', stopId: 'HSL:1150101' },
 ];
 
-const query = `
-  query ($stopId: String!, $limit: Int!) {
+const QUERY = `
+  query GetStopTimes($stopId: String!, $limit: Int!) {
     stop(id: $stopId) {
       name
       stoptimesWithoutPatterns(numberOfDepartures: $limit) {
@@ -24,7 +23,7 @@ const query = `
   }
 `;
 
-export default function Bus() {
+export default function BusSchedule() {
   const [schedules, setSchedules] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,47 +31,23 @@ export default function Bus() {
 
   useEffect(() => {
     async function load() {
-      console.log('Loading schedules for locations:', locations);
       try {
-        const results = await Promise.all(
+        const data = await Promise.all(
           locations.map(async ({ name, stopId }) => {
-            console.log(`Fetching schedule for ${name} (${stopId})`);
-            const requestBody = {
-              query,
-              variables: { stopId, limit: 10 }
-            };
-            console.log('Request body:', requestBody);
-            
-            const resp = await fetch('/api/schedule', {
+            const res = await fetch('/api/schedule', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(requestBody),
+              body: JSON.stringify({ query: QUERY, variables: { stopId, limit: 10 } }),
             });
-            
-            console.log(`Response status for ${name}:`, resp.status);
-            const responseText = await resp.text();
-            console.log(`Raw response for ${name}:`, responseText);
-            
-            let json;
-            try {
-              json = JSON.parse(responseText);
-            } catch (e) {
-              console.error('Failed to parse JSON:', e);
-              throw new Error(`Invalid JSON response: ${responseText}`);
-            }
-            
-            console.log(`Parsed response for ${name}:`, json);
-            const { data, errors } = json;
-            if (errors) throw new Error(errors.map(e => e.message).join('; '));
-            return [name, data.stop];
+            if (!res.ok) throw new Error(res.statusText);
+            const json = await res.json();
+            return [name, json.data.stop];
           })
         );
-        setSchedules(Object.fromEntries(results));
-        console.log('All schedules loaded', results);
+        setSchedules(Object.fromEntries(data));
       } catch (e) {
-        console.error('Error loading schedules:', e);
         setError(e);
       } finally {
         setLoading(false);
@@ -87,36 +62,27 @@ export default function Bus() {
   return (
     <div className="bus-wrapper">
       <div className="nav-buttons">
-        <button onClick={() => swiperRef.current?.slidePrev()}>&larr;</button>
-        <button onClick={() => swiperRef.current?.slideNext()}>&rarr;</button>
+        <button onClick={() => swiperRef.current?.slidePrev()}>Prev</button>
+        <button onClick={() => swiperRef.current?.slideNext()}>Next</button>
       </div>
-      <Swiper
-        spaceBetween={16}
-        slidesPerView={1}
-        onSwiper={(swiper) => (swiperRef.current = swiper)}
-      >
+      <Swiper spaceBetween={16} slidesPerView={1} onSwiper={swiper => (swiperRef.current = swiper)}>
         {locations.map(({ name, bus }) => {
           const stop = schedules[name];
-          const times =
-            stop?.stoptimesWithoutPatterns.filter(
-              t => t.trip.route.shortName === bus
-            ) || [];
-
+          const times = stop?.stoptimesWithoutPatterns.filter(t => t.trip.route.shortName === bus) || [];
           return (
             <SwiperSlide key={name}>
               <div className="bus-card">
                 <h2>{name}</h2>
                 <ul>
-                  {times.map((t, i) => {
-                    const date = new Date((t.serviceDay + t.realtimeDeparture) * 1000);
-                    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const className = i === 0 ? 'bus-time first-time' : 'bus-time';
-                    return (
-                      <li key={i} className={className}>
-                       <p>{timeString} → {t.headsign} - {bus}</p>
-                      </li>
-                    );
-                  })}
+                  {times.length ? (
+                    times.map((t, i) => {
+                      const date = new Date((t.serviceDay + t.realtimeDeparture) * 1000);
+                      const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      return <li key={i} className={i === 0 ? 'first-time' : ''}>{time} → {t.headsign}</li>;
+                    })
+                  ) : (
+                    <li>No {bus} buses.</li>
+                  )}
                 </ul>
               </div>
             </SwiperSlide>
