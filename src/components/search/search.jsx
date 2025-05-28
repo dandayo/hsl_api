@@ -29,23 +29,29 @@ export default function Search() {
 
 
   // Fetch suggestions (stop,address,station,street,venue)
-  const fetchSuggestions = async (text, setter) => {
-    if (!text) return setter([]);
+  const fetchSuggestions = async (inputText, setter) => {
+    if (!inputText) return setter([]);
     try {
       //Filter only Espoo, Vantaa, Helsinki
-      const regionFilter = '&boundary.circle.lat=60.25&boundary.circle.lon=24.85&boundary.circle.radius=20000';
-
-       //Try to use it like a filter to get answer only with Espoo, Vantaa, Helsinki
-      const query = `${text}  helsinki espoo vantaa`;
-
+      const bounds = '&boundary.rect.min_lat=60.15&boundary.rect.max_lat=60.35&boundary.rect.min_lon=24.50&boundary.rect.max_lon=25.10';
+  
       const res = await fetch(
-        `${GEOCODE_URL}?text=${encodeURIComponent(query)}&layers=stop,address,station,street,venue${regionFilter}`,
-        { headers: { 'digitransit-subscription-key': API_KEY } }
+        `${GEOCODE_URL}?text=${encodeURIComponent(inputText)}&layers=stop,address,station,street,venue${bounds}`,
+        {
+          headers: { 'digitransit-subscription-key': API_KEY }
+        }
       );
+
+
+      // Filter Helsinki, Espoo and Vantaa, because bounds doesn't work, and i have no idea, how to do this
       const { features } = await res.json();
-      setter(features || []);
+      const filtered = features.filter(f =>
+        ["Helsinki", "Espoo", "Vantaa"].includes(f.properties?.localadmin)
+      );
+
+      setter(filtered || []);
     } catch (err) {
-      console.error('Suggest error:', err);
+      console.error("Suggest error:", err);
       setter([]);
     }
   };
