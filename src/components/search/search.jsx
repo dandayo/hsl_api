@@ -27,12 +27,15 @@ export default function Search() {
   const debounceFrom = useRef();
   const debounceTo = useRef();
 
+
   // Fetch suggestions (stop,address,station,street,venue)
   const fetchSuggestions = async (text, setter) => {
     if (!text) return setter([]);
     try {
+      //Filter only Espoo, Vantaa, Helsinki
+      const regionFilter = '&boundary.circle.lat=60.25&boundary.circle.lon=24.85&boundary.circle.radius=20000';
       const res = await fetch(
-        `${GEOCODE_URL}?text=${encodeURIComponent(text)}&layers=stop,address,station,street,venue`,
+        `${GEOCODE_URL}?text=${encodeURIComponent(text)}&layers=stop,address,station,street,venue${regionFilter}`,
         { headers: { 'digitransit-subscription-key': API_KEY } }
       );
       const { features } = await res.json();
@@ -52,7 +55,7 @@ export default function Search() {
   };
 
   const onToChange = e => {
-    clearTimeout(debounceTo.current);
+    clearTimeout(encodeURIComponent.current);
     const val = e.target.value;
     setToText(val);
     setToCoords(null);
