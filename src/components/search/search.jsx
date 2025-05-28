@@ -34,8 +34,12 @@ export default function Search() {
     try {
       //Filter only Espoo, Vantaa, Helsinki
       const regionFilter = '&boundary.circle.lat=60.25&boundary.circle.lon=24.85&boundary.circle.radius=20000';
+
+       //Try to use it like a filter to get answer only with Espoo, Vantaa, Helsinki
+      const query = `${text}  helsinki espoo vantaa`;
+
       const res = await fetch(
-        `${GEOCODE_URL}?text=${encodeURIComponent(text)}&layers=stop,address,station,street,venue${regionFilter}`,
+        `${GEOCODE_URL}?text=${encodeURIComponent(query)}&layers=stop,address,station,street,venue${regionFilter}`,
         { headers: { 'digitransit-subscription-key': API_KEY } }
       );
       const { features } = await res.json();
