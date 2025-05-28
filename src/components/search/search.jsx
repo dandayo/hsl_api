@@ -4,7 +4,7 @@ import './search.css';
 
 // URLs and key
 const GEOCODE_URL = 'https://api.digitransit.fi/geocoding/v1/autocomplete';
-const PLAN_URL = 'http://localhost:3001/api/plan';
+const PLAN_URL = '/api/plan';
 const API_KEY = '443c7d32d16745ed85de9dd47b911cf2';
 
 export default function Search() {
