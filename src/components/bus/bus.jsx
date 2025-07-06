@@ -6,6 +6,8 @@ import './bus.css';
 const locations = [
   { name: 'To work', bus: '400', stopId: 'HSL:4150220' },
   { name: 'To home', bus: '400', stopId: 'HSL:1150101' },
+  { name: 'To Malmi', bus: '560', stopId: 'HSL:4150220' },
+  { name: 'Train', bus: 'P', stopId: 'HSL:4000201' }
 ];
 
 const QUERY = `
