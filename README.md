@@ -16,9 +16,6 @@ A simple React app that helps you navigate Helsinki’s public transport. Check 
 - HSL Digitransit API
 - OpenWeatherMap API
 
-## Deployment
-Push to GitHub → Connect to Vercel → Auto deploy.
-
 ## What I Learned
 - Working with external APIs (HSL, OpenWeatherMap)
 - Serverless functions & proxy setup
